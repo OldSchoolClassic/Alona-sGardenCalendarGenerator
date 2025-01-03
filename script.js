@@ -2099,9 +2099,21 @@ function populateCalendarEvents() {
                     <p><strong>Description:</strong> ${plant.description}</p>
                     <p><strong>Planting Zone:</strong> ${plant.plantingZone}</p>
                     <p><strong>Optimal Planting Date:</strong> ${plant.optimalPlantingDate}</p>
+                    <p><strong>Growth Season:</strong> ${plant.growthSeason}</p>
+                    <p><strong>Sunlight:</strong> ${plant.sunlight}</p>
+                    <p><strong>Watering:</strong> ${plant.watering}</p>
+                    <p><strong>Soil Type:</strong> ${plant.soilType}</p>
+                    <p><strong>Fertilization:</strong> ${plant.fertilization}</p>
+                    <p><strong>Pruning:</strong> ${plant.pruning}</p>
+                    <p><strong>Pests:</strong> ${plant.pests}</p>
+                    <p><strong>Harvesting:</strong> ${plant.harvesting}</p>
+                    <p><strong>Storage:</strong> ${plant.storage}</p>
+                    <p><strong>Companion Plants:</strong> ${plant.companionPlants}</p>
+                    <p><strong>Varieties:</strong> ${plant.varieties}</p>
                 `;
                 event.appendChild(tooltip);
 
+                // Tooltip visibility on hover
                 event.addEventListener('mouseenter', () => {
                     tooltip.style.visibility = 'visible';
                     tooltip.style.opacity = '1';
@@ -2117,6 +2129,36 @@ function populateCalendarEvents() {
         });
     });
 }
+
+// Scroll the carousel
+function scrollCarousel(direction) {
+    const scrollAmount = 300; // Adjust this value based on the width of each plant card
+    const carousel = document.getElementById('plants-carousel');
+
+    if (carousel) {
+        carousel.scrollBy({
+            left: direction * scrollAmount,
+            behavior: 'smooth',
+        });
+    } else {
+        console.error('Carousel container not found!');
+    }
+}
+
+// Attach click events for carousel navigation
+document.querySelector('.carousel-arrow.left').addEventListener('click', () => scrollCarousel(-1));
+document.querySelector('.carousel-arrow.right').addEventListener('click', () => scrollCarousel(1));
+
+// Handle Month Navigation
+prevMonthButton.addEventListener('click', () => {
+    currentMonth = (currentMonth - 1 + 12) % 12;
+    generateCalendar(currentMonth, currentYear);
+});
+
+nextMonthButton.addEventListener('click', () => {
+    currentMonth = (currentMonth + 1) % 12;
+    generateCalendar(currentMonth, currentYear);
+});
 
 // Check if a Plant Matches the Calendar Date
 function matchesPlantingDate(plant, date) {
