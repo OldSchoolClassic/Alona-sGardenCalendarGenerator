@@ -2214,46 +2214,54 @@ function addEventsToCalendar(calendarId) {
 
     selectedPlants.forEach((plant) => {
         const [startMonth, startDay] = plant.optimalPlantingDate.split(' - ')[0].split(' ');
-        const startDate = new Date(`2025 ${startMonth} ${startDay}`).toISOString();
+        const [endMonth, endDay] = plant.optimalPlantingDate.split(' - ')[1].split(' ');
 
-        // Prepare event details
-        const event = {
-            summary: `${plant.name} Planting`,
-            description: `
-                Name: ${plant.name}
-                Description: ${plant.description}
-                Planting Zone: ${plant.plantingZone}
-                Growth Season: ${plant.growthSeason}
-                Sunlight: ${plant.sunlight}
-                Watering: ${plant.watering}
-                Soil Type: ${plant.soilType}
-                Fertilization: ${plant.fertilization}
-                Pruning: ${plant.pruning}
-                Pests: ${plant.pests}
-                Harvesting: ${plant.harvesting}
-                Storage: ${plant.storage}
-                Companion Plants: ${plant.companionPlants}
-                Varieties: ${plant.varieties}
-            `,
-            start: {
-                date: startDate.split('T')[0], // Extract date part
-            },
-            end: {
-                date: startDate.split('T')[0], // Same date for one-day events
-            },
-        };
+        const startDate = new Date(`2025 ${startMonth} ${startDay}`);
+        const endDate = new Date(`2025 ${endMonth} ${endDay}`);
 
-        // Create each event in the calendar
-        const promise = fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(event),
-        }).then((response) => response.json());
+        // Loop through all dates within the planting range
+        for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+            const eventDate = new Date(date).toISOString().split('T')[0]; // Format as YYYY-MM-DD
 
-        promises.push(promise);
+            // Prepare event details
+            const event = {
+                summary: `${plant.name} Planting`,
+                description: `
+                    Name: ${plant.name}
+                    Description: ${plant.description}
+                    Planting Zone: ${plant.plantingZone}
+                    Growth Season: ${plant.growthSeason}
+                    Sunlight: ${plant.sunlight}
+                    Watering: ${plant.watering}
+                    Soil Type: ${plant.soilType}
+                    Fertilization: ${plant.fertilization}
+                    Pruning: ${plant.pruning}
+                    Pests: ${plant.pests}
+                    Harvesting: ${plant.harvesting}
+                    Storage: ${plant.storage}
+                    Companion Plants: ${plant.companionPlants}
+                    Varieties: ${plant.varieties}
+                `,
+                start: {
+                    date: eventDate,
+                },
+                end: {
+                    date: eventDate,
+                },
+            };
+
+            // Create each event in the calendar
+            const promise = fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(event),
+            }).then((response) => response.json());
+
+            promises.push(promise);
+        }
     });
 
     // Wait for all events to be added
