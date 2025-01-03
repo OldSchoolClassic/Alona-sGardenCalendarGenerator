@@ -2186,7 +2186,7 @@ function handleAuthRedirect() {
     const SCOPES = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events';
     
     // Update this to your deployed app URL or ensure localhost is running
-    const REDIRECT_URI = 'http://localhost:3000'; 
+    const REDIRECT_URI = 'https://oldschoolclassic.github.io/Alona-sGardenCalendarGenerator/'; 
 
     const authUrl = `https://accounts.google.com/o/oauth2/auth?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(
         SCOPES
