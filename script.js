@@ -2201,12 +2201,13 @@ function handleRedirectResponse() {
         const accessToken = params.get('access_token');
         if (accessToken) {
             console.log('Access Token:', accessToken); // Log the access token for debugging
+            window.location.hash = ''; // Clear the hash to prevent reprocessing on refresh
             createGoogleCalendar(accessToken);
         } else {
             console.error('Access token not found in the redirect URI.');
         }
     } else {
-        console.log('No hash fragment found. Ensure the redirect URI is correct.');
+        console.log('No hash fragment found. Skipping redirect response handling.');
     }
 }
 
@@ -2314,7 +2315,10 @@ function addEventsToCalendar(accessToken, calendarId) {
 function initializeApp() {
     populatePlantSelector();
     generateCalendar(currentMonth, currentYear);
-    handleRedirectResponse(); // Handle redirect and token extraction
+    // Handle redirect only if the URL has a hash
+    if (window.location.hash) {
+        handleRedirectResponse();
+    }
 }
 
 // Attach the click event for the Generate Google Calendar button
