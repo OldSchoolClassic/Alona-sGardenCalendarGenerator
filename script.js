@@ -2089,116 +2089,121 @@ function generateCalendar(month, year) {
     populateCalendarEvents();
 }
 
-// Populate Calendar Events
-function populateCalendarEvents() {
-    document.querySelectorAll('.calendar-cell').forEach((cell) => {
-        const cellDate = cell.dataset.date;
-
-        selectedPlants.forEach((plant) => {
-            if (matchesPlantingDate(plant, cellDate)) {
-                const event = document.createElement('div');
-                event.classList.add('calendar-event');
-                event.textContent = plant.name;
-
-                const tooltip = document.createElement('div');
-                tooltip.classList.add('tooltip-content');
-                tooltip.innerHTML = `
-                    <p><strong>Name:</strong> ${plant.name}</p>
-                    <p><strong>Description:</strong> ${plant.description}</p>
-                    <p><strong>Planting Zone:</strong> ${plant.plantingZone}</p>
-                    <p><strong>Optimal Planting Date:</strong> ${plant.optimalPlantingDate}</p>
-                    <p><strong>Growth Season:</strong> ${plant.growthSeason}</p>
-                    <p><strong>Sunlight:</strong> ${plant.sunlight}</p>
-                    <p><strong>Watering:</strong> ${plant.watering}</p>
-                    <p><strong>Soil Type:</strong> ${plant.soilType}</p>
-                    <p><strong>Fertilization:</strong> ${plant.fertilization}</p>
-                    <p><strong>Pruning:</strong> ${plant.pruning}</p>
-                    <p><strong>Pests:</strong> ${plant.pests}</p>
-                    <p><strong>Harvesting:</strong> ${plant.harvesting}</p>
-                    <p><strong>Storage:</strong> ${plant.storage}</p>
-                    <p><strong>Companion Plants:</strong> ${plant.companionPlants}</p>
-                    <p><strong>Varieties:</strong> ${plant.varieties}</p>
-                `;
-                event.appendChild(tooltip);
-
-                // Tooltip visibility on hover
-                event.addEventListener('mouseenter', () => {
-                    tooltip.style.visibility = 'visible';
-                    tooltip.style.opacity = '1';
-                });
-
-                event.addEventListener('mouseleave', () => {
-                    tooltip.style.visibility = 'hidden';
-                    tooltip.style.opacity = '0';
-                });
-
-                cell.appendChild(event);
-            }
-        });
-    });
-}
-
-// Check if a Plant Matches the Calendar Date
-function matchesPlantingDate(plant, date) {
-    const [startMonth, startDay] = plant.optimalPlantingDate.split(' - ')[0].split(' ');
-    const [endMonth, endDay] = plant.optimalPlantingDate.split(' - ')[1].split(' ');
-
-    const startDate = new Date(`2025 ${startMonth} ${startDay}`);
-    const endDate = new Date(`2025 ${endMonth} ${endDay}`);
-    const targetDate = new Date(date);
-
-    return targetDate >= startDate && targetDate <= endDate;
-}
-
-// Scroll the carousel
-function scrollCarousel(direction) {
-    const scrollAmount = 300; // Adjust this value based on the width of each plant card
-    const carousel = document.getElementById('plants-carousel');
-
-    if (carousel) {
-        carousel.scrollBy({
-            left: direction * scrollAmount,
-            behavior: 'smooth',
-        });
-    } else {
-        console.error('Carousel container not found!');
-    }
-}
-
-// Attach click events for carousel navigation
-document.querySelector('.carousel-arrow.left').addEventListener('click', () => scrollCarousel(-1));
-document.querySelector('.carousel-arrow.right').addEventListener('click', () => scrollCarousel(1));
-
-// Handle Month Navigation
-prevMonthButton.addEventListener('click', () => {
-    currentMonth = (currentMonth - 1 + 12) % 12;
-    generateCalendar(currentMonth, currentYear);
-});
-
-nextMonthButton.addEventListener('click', () => {
-    currentMonth = (currentMonth + 1) % 12;
-    generateCalendar(currentMonth, currentYear);
-});
-
 // Redirect to Google OAuth for Calendar Integration
 function handleAuthRedirect() {
     const CLIENT_ID = '49132421966-cp58gf3f85p81efivme83t2nafatm5si.apps.googleusercontent.com';
     const SCOPES = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events';
-    
-    // Update this to your deployed app URL or ensure localhost is running
-    const REDIRECT_URI = 'https://oldschoolclassic.github.io/Alona-sGardenCalendarGenerator/'; 
+    const REDIRECT_URI = 'https://oldschoolclassic.github.io/Alona-sGardenCalendarGenerator/';
 
-    const authUrl = `https://accounts.google.com/o/oauth2/auth?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(REDIRECT_URI)}&scope=${encodeURIComponent(
-        SCOPES
-    )}&include_granted_scopes=true`;
+    const authUrl = `https://accounts.google.com/o/oauth2/auth?response_type=token&client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
+        REDIRECT_URI
+    )}&scope=${encodeURIComponent(SCOPES)}&include_granted_scopes=true`;
 
-    // Open Google OAuth in a new tab
-    window.open(authUrl, '_blank');
+    window.location.href = authUrl; // Redirect to Google OAuth
 }
 
-// Attach the click event for Generate Google Calendar Button
-generateCalendarButton.addEventListener('click', handleAuthRedirect);
+// Handle Redirect Response
+function handleRedirectResponse() {
+    const hash = window.location.hash;
+    if (hash) {
+        const params = new URLSearchParams(hash.substring(1));
+        accessToken = params.get('access_token');
+        if (accessToken) {
+            console.log('Access Token:', accessToken);
+            window.location.hash = ''; // Prevent duplicate processing
+        } else {
+            console.error('Access token not found.');
+        }
+    }
+}
+
+// Create Google Calendar
+function createGoogleCalendar() {
+    if (!accessToken) {
+        alert('Authorization required. Please log in to Google.');
+        return;
+    }
+
+    fetch('https://www.googleapis.com/calendar/v3/calendars', {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            summary: 'Garden Calendar',
+            description: 'A calendar for gardening events',
+            timeZone: 'UTC',
+        }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            console.log('Calendar Created:', data);
+            alert(`Google Calendar created successfully! ID: ${data.id}`);
+            addEventsToCalendar(data.id);
+        })
+        .catch((error) => console.error('Error creating calendar:', error));
+}
+
+// Add Events to Google Calendar
+function addEventsToCalendar(calendarId) {
+    if (!selectedPlants || selectedPlants.length === 0) {
+        alert('No plants selected. Please select plants to add events.');
+        return;
+    }
+
+    selectedPlants.forEach((plant) => {
+        const [startMonth, startDay] = plant.optimalPlantingDate.split(' - ')[0].split(' ');
+        const [endMonth, endDay] = plant.optimalPlantingDate.split(' - ')[1].split(' ');
+
+        const startDate = new Date(`2025 ${startMonth} ${startDay}`).toISOString().split('T')[0];
+        const endDate = new Date(`2025 ${endMonth} ${endDay}`).toISOString().split('T')[0];
+
+        const event = {
+            summary: `${plant.name} Planting`,
+            description: `
+                Description: ${plant.description}
+                Planting Zone: ${plant.plantingZone}
+                Sunlight: ${plant.sunlight}
+                Watering: ${plant.watering}
+                Soil Type: ${plant.soilType}
+                Fertilization: ${plant.fertilization}
+                Pruning: ${plant.pruning}
+                Pests: ${plant.pests}
+                Harvesting: ${plant.harvesting}
+                Storage: ${plant.storage}
+                Companion Plants: ${plant.companionPlants}
+                Varieties: ${plant.varieties}
+            `,
+            start: { date: startDate },
+            end: { date: endDate },
+        };
+
+        fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(event),
+        })
+            .then((response) => response.json())
+            .then((eventData) => {
+                console.log(`Event Created for ${plant.name}:`, eventData);
+            })
+            .catch((error) => console.error(`Error creating event for ${plant.name}:`, error));
+    });
+}
+
+// Attach Generate Calendar Event
+generateCalendarButton.addEventListener('click', createGoogleCalendar);
 
 // Initialize App
-populatePlantSelector();
-generateCalendar(currentMonth, currentYear);
+function initializeApp() {
+    populatePlantSelector();
+    generateCalendar(currentMonth, currentYear);
+    handleRedirectResponse();
+}
+
+// Run the App
+initializeApp();
