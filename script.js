@@ -2173,7 +2173,6 @@ function matchesPlantingDate(plant, date) {
 }
 
 // Google Calendar Integration
-// Google Calendar Integration
 function createGoogleCalendar() {
     const CLIENT_ID = '49132421966-cp58gf3f85p81efivme83t2nafatm5si.apps.googleusercontent.com';
     const REDIRECT_URI = 'https://oldschoolclassic.github.io/Alona-sGardenCalendarGenerator/';
@@ -2250,6 +2249,8 @@ function addEventsToCalendar(calendarId) {
                 },
             };
 
+            console.log('Event being sent:', JSON.stringify(event, null, 2));
+
             const promise = fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
                 method: 'POST',
                 headers: {
@@ -2263,7 +2264,10 @@ function addEventsToCalendar(calendarId) {
                     return response.json();
                 })
                 .then((data) => console.log(`Event created: ${data.id}`))
-                .catch(console.error);
+                .catch((error) => {
+                    console.error('Error creating event:', error);
+                    alert(`Failed to create event: ${error.message}`);
+                });
 
             promises.push(promise);
         }
