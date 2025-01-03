@@ -2221,7 +2221,7 @@ function addEventsToCalendar(calendarId) {
         const endDate = new Date(`2025 ${endMonth} ${endDay}`);
 
         for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
-            const eventDate = new Date(date).toISOString().split('T')[0]; // Format as YYYY-MM-DD
+            const eventDate = new Date(date).toISOString().split('T')[0];
 
             const event = {
                 summary: `${plant.name} Planting`,
@@ -2241,15 +2241,9 @@ function addEventsToCalendar(calendarId) {
                     Companion Plants: ${plant.companionPlants}
                     Varieties: ${plant.varieties}
                 `,
-                start: {
-                    date: eventDate,
-                },
-                end: {
-                    date: eventDate,
-                },
+                start: { date: eventDate },
+                end: { date: eventDate },
             };
-
-            console.log('Event being sent:', JSON.stringify(event, null, 2));
 
             const promise = fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
                 method: 'POST',
@@ -2260,13 +2254,19 @@ function addEventsToCalendar(calendarId) {
                 body: JSON.stringify(event),
             })
                 .then((response) => {
-                    if (!response.ok) throw new Error(`Failed to create event: ${response.statusText}`);
+                    if (!response.ok) {
+                        return response.json().then((error) => {
+                            console.error('Error creating event:', error);
+                            throw new Error(error.error.message || 'Unknown error');
+                        });
+                    }
                     return response.json();
                 })
-                .then((data) => console.log(`Event created: ${data.id}`))
+                .then((data) => {
+                    console.log(`Event created: ${data.summary} (ID: ${data.id})`);
+                })
                 .catch((error) => {
-                    console.error('Error creating event:', error);
-                    alert(`Failed to create event: ${error.message}`);
+                    console.error('Failed to create event:', error.message);
                 });
 
             promises.push(promise);
@@ -2276,9 +2276,12 @@ function addEventsToCalendar(calendarId) {
     Promise.all(promises)
         .then(() => {
             alert('All events have been added to the calendar!');
-            window.open(`https://calendar.google.com/calendar/u/0/r?cid=${calendarId}`, '_blank'); // Open Google Calendar
+            window.open(`https://calendar.google.com/calendar/u/0/r?cid=${calendarId}`, '_blank');
         })
-        .catch(console.error);
+        .catch((error) => {
+            console.error('Error adding events:', error.message);
+            alert('Some events failed to add. Check the console for details.');
+        });
 }
 
 // Handle OAuth Redirect Response
