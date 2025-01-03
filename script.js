@@ -2175,12 +2175,12 @@ function matchesPlantingDate(plant, date) {
 // Google Calendar Integration
 function createGoogleCalendar() {
     const CLIENT_ID = '49132421966-cp58gf3f85p81efivme83t2nafatm5si.apps.googleusercontent.com';
-    const REDIRECT_URI = 'https://oldschoolclassic.github.io/Alona-sGardenCalendarGenerator/'; // Replace with your app's redirect URI
+    const REDIRECT_URI = 'https://oldschoolclassic.github.io/Alona-sGardenCalendarGenerator/';
     const SCOPES = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events';
 
     if (!accessToken) {
         // Redirect user to Google's OAuth 2.0 server
-        const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
+        const authUrl = `https://accounts.google.com/o/oauth2/v2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
             REDIRECT_URI
         )}&response_type=token&scope=${encodeURIComponent(SCOPES)}&prompt=consent`;
         window.location.href = authUrl;
@@ -2204,7 +2204,10 @@ function createGoogleCalendar() {
             alert(`Google Calendar created successfully! ID: ${data.id}`);
             addEventsToCalendar(data.id);
         })
-        .catch(console.error);
+        .catch((error) => {
+            console.error('Error creating Google Calendar:', error);
+            alert('Failed to create Google Calendar. Check the console for details.');
+        });
 }
 
 // Handle OAuth Redirect Response
@@ -2218,12 +2221,13 @@ function handleOAuthRedirect() {
             alert('Google Authorization Successful!');
         } else {
             console.error('Access token not found.');
+            alert('Authorization failed. Please try again.');
         }
     }
 }
 
-// Call this function on page load to handle OAuth token retrieval
-handleOAuthRedirect();
+// Call handleOAuthRedirect on page load
+window.onload = handleOAuthRedirect;
 
 // Attach Event Listeners
 generateCalendarButton.addEventListener('click', createGoogleCalendar);
