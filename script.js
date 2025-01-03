@@ -2173,6 +2173,7 @@ function matchesPlantingDate(plant, date) {
 }
 
 // Google Calendar Integration
+// Google Calendar Integration
 function createGoogleCalendar() {
     const CLIENT_ID = '49132421966-cp58gf3f85p81efivme83t2nafatm5si.apps.googleusercontent.com';
     const REDIRECT_URI = 'https://oldschoolclassic.github.io/Alona-sGardenCalendarGenerator/';
