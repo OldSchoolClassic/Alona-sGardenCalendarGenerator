@@ -2193,20 +2193,24 @@ function handleAuthRedirect() {
     window.location.href = authUrl; // Redirect to Google OAuth
 }
 
+// Handle the redirect and extract the access token
 function handleRedirectResponse() {
     const hash = window.location.hash;
     if (hash) {
-        const params = new URLSearchParams(hash.substring(1)); // Remove the '#' and parse parameters
+        const params = new URLSearchParams(hash.substring(1)); // Parse the hash fragment
         const accessToken = params.get('access_token');
         if (accessToken) {
-            console.log('Access Token:', accessToken);
+            console.log('Access Token:', accessToken); // Log the access token for debugging
             createGoogleCalendar(accessToken);
         } else {
-            console.error('Access token not found in the redirect URI');
+            console.error('Access token not found in the redirect URI.');
         }
+    } else {
+        console.log('No hash fragment found. Ensure the redirect URI is correct.');
     }
 }
 
+// Create a new Google Calendar
 function createGoogleCalendar(accessToken) {
     fetch('https://www.googleapis.com/calendar/v3/calendars', {
         method: 'POST',
@@ -2220,57 +2224,30 @@ function createGoogleCalendar(accessToken) {
             timeZone: 'UTC',
         }),
     })
-        .then((response) => response.json())
-        .then((data) => {
-            console.log('Calendar Created:', data);
-            alert('Google Calendar created successfully!');
+        .then((response) => {
+            if (!response.ok) {
+                throw new Error(`HTTP error! Status: ${response.status}`);
+            }
+            return response.json();
         })
-        .catch((error) => {
-            console.error('Error creating calendar:', error);
-        });
-}
-function handleRedirectResponse() {
-    const hash = window.location.hash;
-    if (hash) {
-        const params = new URLSearchParams(hash.substring(1)); // Remove the '#' and parse parameters
-        const accessToken = params.get('access_token');
-        if (accessToken) {
-            console.log('Access Token:', accessToken);
-            createGoogleCalendar(accessToken);
-        } else {
-            console.error('Access token not found in the redirect URI');
-        }
-    }
-}
-
-function createGoogleCalendar(accessToken) {
-    fetch('https://www.googleapis.com/calendar/v3/calendars', {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            summary: 'Garden Calendar',
-            description: 'A calendar for gardening events',
-            timeZone: 'UTC',
-        }),
-    })
-        .then((response) => response.json())
         .then((data) => {
             console.log('Calendar Created:', data);
-            alert('Google Calendar created successfully!');
+            alert(`Google Calendar created successfully! ID: ${data.id}`);
         })
         .catch((error) => {
             console.error('Error creating calendar:', error);
         });
 }
 
-// Attach the click event for Generate Google Calendar Button
+// Initialize the app
+function initializeApp() {
+    populatePlantSelector();
+    generateCalendar(currentMonth, currentYear);
+    handleRedirectResponse(); // Handle redirect and token extraction
+}
+
+// Attach the click event for the Generate Google Calendar button
 generateCalendarButton.addEventListener('click', handleAuthRedirect);
 
-// Initialize App
-populatePlantSelector();
-generateCalendar(currentMonth, currentYear);
-handleRedirectResponse();
-
+// Run the app
+initializeApp();
