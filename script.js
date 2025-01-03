@@ -2174,8 +2174,8 @@ function matchesPlantingDate(plant, date) {
 
 // Google Calendar Integration
 function createGoogleCalendar() {
-    const CLIENT_ID = 'your-client-id.apps.googleusercontent.com';
-    const REDIRECT_URI = 'your-redirect-uri'; // Replace with your redirect URI
+    const CLIENT_ID = '49132421966-cp58gf3f85p81efivme83t2nafatm5si.apps.googleusercontent.com';
+    const REDIRECT_URI = 'https://oldschoolclassic.github.io/Alona-sGardenCalendarGenerator/'; // Replace with your app's redirect URI
     const SCOPES = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events';
 
     if (!accessToken) {
@@ -2215,6 +2215,7 @@ function handleOAuthRedirect() {
         accessToken = params.get('access_token');
         if (accessToken) {
             console.log('Access Token Retrieved:', accessToken);
+            alert('Google Authorization Successful!');
         } else {
             console.error('Access token not found.');
         }
