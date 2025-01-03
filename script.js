@@ -2312,5 +2312,27 @@ function initializeApp() {
     generateCalendar(currentMonth, currentYear);
 }
 
+fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
+    method: 'POST',
+    headers: {
+        Authorization: `Bearer ${accessToken}`,
+        'Content-Type': 'application/json',
+    },
+    body: JSON.stringify(event),
+})
+    .then(response => {
+        console.log('Response Status:', response.status);
+        return response.json();
+    })
+    .then(data => {
+        console.log('Event Response:', data);
+        if (data.error) {
+            alert(`Error: ${data.error.message}`);
+        } else {
+            console.log(`Event created: ${data.id}`);
+        }
+    })
+    .catch(error => console.error('Event creation error:', error));
+
 // Run App
 initializeApp();
