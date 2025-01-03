@@ -2119,28 +2119,15 @@ function matchesPlantingDate(plant, date) {
 
 // Google Calendar Integration
 function createGoogleCalendar() {
-    if (!accessToken) {
-        alert('Authorization required. Please log in to Google.');
-        return;
-    }
+    const CLIENT_ID = 'your-client-id.apps.googleusercontent.com';
+    const REDIRECT_URI = 'https://your-redirect-uri.com';
+    const SCOPES = 'https://www.googleapis.com/auth/calendar';
 
-    fetch('https://www.googleapis.com/calendar/v3/calendars', {
-        method: 'POST',
-        headers: {
-            Authorization: `Bearer ${accessToken}`,
-            'Content-Type': 'application/json',
-        },
-        body: JSON.stringify({
-            summary: 'Garden Calendar',
-            timeZone: 'UTC',
-        }),
-    })
-        .then((response) => response.json())
-        .then((data) => {
-            alert(`Google Calendar created successfully! ID: ${data.id}`);
-            addEventsToCalendar(data.id);
-        })
-        .catch(console.error);
+    const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
+        REDIRECT_URI
+    )}&response_type=token&scope=${encodeURIComponent(SCOPES)}`;
+
+    window.open(authUrl, '_blank');
 }
 
 // Add Events to Google Calendar
@@ -2193,10 +2180,10 @@ nextMonthButton.addEventListener('click', () => {
     generateCalendar(currentMonth, currentYear);
 });
 carouselPrevButton.addEventListener('click', () => {
-    plantsContainer.scrollLeft -= 300;
+    plantsContainer.scrollBy({ left: -300, behavior: 'smooth' });
 });
 carouselNextButton.addEventListener('click', () => {
-    plantsContainer.scrollLeft += 300;
+    plantsContainer.scrollBy({ left: 300, behavior: 'smooth' });
 });
 modalCloseButton.addEventListener('click', () => {
     modal.classList.remove('visible');
