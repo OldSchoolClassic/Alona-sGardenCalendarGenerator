@@ -1966,8 +1966,14 @@ const plants = [
 
 // DOM Elements
 const plantsContainer = document.getElementById('plants-carousel');
+const modal = document.getElementById('plant-modal');
+const modalCloseButton = document.querySelector('.close-modal');
 const calendarTable = document.getElementById('calendar-table');
+const calendarControls = document.getElementById('calendar-controls');
+const calendarPreview = document.getElementById('calendar-preview');
 const generateCalendarButton = document.getElementById('generate-calendar');
+const prevMonthButton = document.getElementById('prev-month');
+const nextMonthButton = document.getElementById('next-month');
 
 // Calendar Setup
 const months = [
