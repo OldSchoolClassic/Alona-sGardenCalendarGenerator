@@ -2233,10 +2233,68 @@ function createGoogleCalendar(accessToken) {
         .then((data) => {
             console.log('Calendar Created:', data);
             alert(`Google Calendar created successfully! ID: ${data.id}`);
+            addEventsToCalendar(accessToken, data.id); // Add events to the created calendar
         })
         .catch((error) => {
             console.error('Error creating calendar:', error);
         });
+}
+
+// Add events to the created Google Calendar
+function addEventsToCalendar(accessToken, calendarId) {
+    // Loop through selected plants and create events
+    selectedPlants.forEach((plant) => {
+        const [startMonth, startDay] = plant.optimalPlantingDate.split(' - ')[0].split(' ');
+        const [endMonth, endDay] = plant.optimalPlantingDate.split(' - ')[1].split(' ');
+
+        const startDate = new Date(`2025 ${startMonth} ${startDay}`).toISOString().split('T')[0];
+        const endDate = new Date(`2025 ${endMonth} ${endDay}`).toISOString().split('T')[0];
+
+        const event = {
+            summary: plant.name,
+            description: `
+                Description: ${plant.description}
+                Planting Zone: ${plant.plantingZone}
+                Sunlight: ${plant.sunlight}
+                Watering: ${plant.watering}
+                Soil Type: ${plant.soilType}
+                Fertilization: ${plant.fertilization}
+                Pruning: ${plant.pruning}
+                Pests: ${plant.pests}
+                Harvesting: ${plant.harvesting}
+                Storage: ${plant.storage}
+                Companion Plants: ${plant.companionPlants}
+                Varieties: ${plant.varieties}
+            `,
+            start: {
+                date: startDate,
+            },
+            end: {
+                date: endDate,
+            },
+        };
+
+        fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(event),
+        })
+            .then((response) => {
+                if (!response.ok) {
+                    throw new Error(`Failed to create event: ${response.status}`);
+                }
+                return response.json();
+            })
+            .then((eventData) => {
+                console.log(`Event Created for ${plant.name}:`, eventData);
+            })
+            .catch((error) => {
+                console.error(`Error creating event for ${plant.name}:`, error);
+            });
+    });
 }
 
 // Initialize the app
