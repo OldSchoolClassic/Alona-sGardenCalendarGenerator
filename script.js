@@ -2333,6 +2333,7 @@ fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
         }
     })
     .catch(error => console.error('Event creation error:', error));
+}
 
 // Run App
 initializeApp();
