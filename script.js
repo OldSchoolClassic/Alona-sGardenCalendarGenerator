@@ -2272,3 +2272,5 @@ generateCalendarButton.addEventListener('click', handleAuthRedirect);
 // Initialize App
 populatePlantSelector();
 generateCalendar(currentMonth, currentYear);
+handleRedirectResponse();
+
