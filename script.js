@@ -2312,6 +2312,9 @@ function initializeApp() {
     generateCalendar(currentMonth, currentYear);
 }
 
+// Run App
+initializeApp();
+
 fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
     method: 'POST',
     headers: {
@@ -2333,7 +2336,3 @@ fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
         }
     })
     .catch(error => console.error('Event creation error:', error));
-}
-
-// Run App
-initializeApp();
