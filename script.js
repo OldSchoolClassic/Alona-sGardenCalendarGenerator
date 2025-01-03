@@ -1975,6 +1975,36 @@ const generateCalendarButton = document.getElementById('generate-calendar');
 const prevMonthButton = document.getElementById('prev-month');
 const nextMonthButton = document.getElementById('next-month');
 
+// Open Modal
+function openPlantModal(plant) {
+    document.getElementById('modal-plant-name').textContent = plant.name;
+    document.getElementById('modal-plant-description').textContent = plant.description;
+
+    const detailsList = document.getElementById('modal-plant-details');
+    detailsList.innerHTML = `
+        <li><strong>Planting Zone:</strong> ${plant.plantingZone}</li>
+        <li><strong>Optimal Planting Date:</strong> ${plant.optimalPlantingDate}</li>
+        <li><strong>Growth Season:</strong> ${plant.growthSeason}</li>
+        <li><strong>Sunlight:</strong> ${plant.sunlight}</li>
+        <li><strong>Watering:</strong> ${plant.watering}</li>
+        <li><strong>Soil Type:</strong> ${plant.soilType}</li>
+        <li><strong>Fertilization:</strong> ${plant.fertilization}</li>
+        <li><strong>Pruning:</strong> ${plant.pruning}</li>
+        <li><strong>Pests:</strong> ${plant.pests}</li>
+        <li><strong>Harvesting:</strong> ${plant.harvesting}</li>
+        <li><strong>Storage:</strong> ${plant.storage}</li>
+        <li><strong>Companion Plants:</strong> ${plant.companionPlants}</li>
+        <li><strong>Varieties:</strong> ${plant.varieties}</li>
+    `;
+
+    modal.classList.add('visible');
+}
+
+// Close Modal
+modalCloseButton.addEventListener('click', () => {
+    modal.classList.remove('visible');
+});
+
 // Calendar Setup
 const months = [
     'January', 'February', 'March', 'April', 'May', 'June',
