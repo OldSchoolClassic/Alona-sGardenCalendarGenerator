@@ -1974,6 +1974,8 @@ const calendarPreview = document.getElementById('calendar-preview');
 const generateCalendarButton = document.getElementById('generate-calendar');
 const prevMonthButton = document.getElementById('prev-month');
 const nextMonthButton = document.getElementById('next-month');
+const carouselPrevButton = document.getElementById('carousel-prev');
+const carouselNextButton = document.getElementById('carousel-next');
 
 // Calendar Setup
 const months = [
@@ -2190,6 +2192,12 @@ nextMonthButton.addEventListener('click', () => {
     if (currentMonth === 0) currentYear++;
     generateCalendar(currentMonth, currentYear);
 });
+carouselPrevButton.addEventListener('click', () => {
+    plantsContainer.scrollLeft -= 300;
+});
+carouselNextButton.addEventListener('click', () => {
+    plantsContainer.scrollLeft += 300;
+});
 modalCloseButton.addEventListener('click', () => {
     modal.classList.remove('visible');
 });
@@ -2202,4 +2210,3 @@ function initializeApp() {
 
 // Run App
 initializeApp();
-
