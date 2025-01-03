@@ -1983,6 +1983,7 @@ const months = [
 let currentMonth = 0; // Start with January
 let currentYear = 2025; // Restrict to 2025
 let selectedPlants = []; // Store selected plants to persist across months
+let accessToken = ''; // Store the access token
 
 // Populate Plant Selector
 function populatePlantSelector() {
@@ -2089,7 +2090,68 @@ function generateCalendar(month, year) {
     populateCalendarEvents();
 }
 
-// Redirect to Google OAuth for Calendar Integration
+// Populate Calendar Events
+function populateCalendarEvents() {
+    document.querySelectorAll('.calendar-cell').forEach((cell) => {
+        const cellDate = cell.dataset.date;
+
+        selectedPlants.forEach((plant) => {
+            if (matchesPlantingDate(plant, cellDate)) {
+                const event = document.createElement('div');
+                event.classList.add('calendar-event');
+                event.textContent = plant.name;
+
+                const tooltip = document.createElement('div');
+                tooltip.classList.add('tooltip-content');
+                tooltip.innerHTML = `
+                    <p><strong>Name:</strong> ${plant.name}</p>
+                    <p><strong>Description:</strong> ${plant.description}</p>
+                    <p><strong>Planting Zone:</strong> ${plant.plantingZone}</p>
+                    <p><strong>Optimal Planting Date:</strong> ${plant.optimalPlantingDate}</p>
+                    <p><strong>Growth Season:</strong> ${plant.growthSeason}</p>
+                    <p><strong>Sunlight:</strong> ${plant.sunlight}</p>
+                    <p><strong>Watering:</strong> ${plant.watering}</p>
+                    <p><strong>Soil Type:</strong> ${plant.soilType}</p>
+                    <p><strong>Fertilization:</strong> ${plant.fertilization}</p>
+                    <p><strong>Pruning:</strong> ${plant.pruning}</p>
+                    <p><strong>Pests:</strong> ${plant.pests}</p>
+                    <p><strong>Harvesting:</strong> ${plant.harvesting}</p>
+                    <p><strong>Storage:</strong> ${plant.storage}</p>
+                    <p><strong>Companion Plants:</strong> ${plant.companionPlants}</p>
+                    <p><strong>Varieties:</strong> ${plant.varieties}</p>
+                `;
+                event.appendChild(tooltip);
+
+                // Tooltip visibility on hover
+                event.addEventListener('mouseenter', () => {
+                    tooltip.style.visibility = 'visible';
+                    tooltip.style.opacity = '1';
+                });
+
+                event.addEventListener('mouseleave', () => {
+                    tooltip.style.visibility = 'hidden';
+                    tooltip.style.opacity = '0';
+                });
+
+                cell.appendChild(event);
+            }
+        });
+    });
+}
+
+// Check if a Plant Matches the Calendar Date
+function matchesPlantingDate(plant, date) {
+    const [startMonth, startDay] = plant.optimalPlantingDate.split(' - ')[0].split(' ');
+    const [endMonth, endDay] = plant.optimalPlantingDate.split(' - ')[1].split(' ');
+
+    const startDate = new Date(`2025 ${startMonth} ${startDay}`);
+    const endDate = new Date(`2025 ${endMonth} ${endDay}`);
+    const targetDate = new Date(date);
+
+    return targetDate >= startDate && targetDate <= endDate;
+}
+
+// Google Calendar Integration Functions
 function handleAuthRedirect() {
     const CLIENT_ID = '49132421966-cp58gf3f85p81efivme83t2nafatm5si.apps.googleusercontent.com';
     const SCOPES = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events';
@@ -2099,25 +2161,23 @@ function handleAuthRedirect() {
         REDIRECT_URI
     )}&scope=${encodeURIComponent(SCOPES)}&include_granted_scopes=true`;
 
-    window.location.href = authUrl; // Redirect to Google OAuth
+    window.location.href = authUrl;
 }
 
-// Handle Redirect Response
 function handleRedirectResponse() {
     const hash = window.location.hash;
     if (hash) {
         const params = new URLSearchParams(hash.substring(1));
         accessToken = params.get('access_token');
         if (accessToken) {
-            console.log('Access Token:', accessToken);
-            window.location.hash = ''; // Prevent duplicate processing
+            console.log('Access Token Retrieved:', accessToken);
+            window.location.hash = ''; // Clear the hash to prevent reprocessing
         } else {
             console.error('Access token not found.');
         }
     }
 }
 
-// Create Google Calendar
 function createGoogleCalendar() {
     if (!accessToken) {
         alert('Authorization required. Please log in to Google.');
@@ -2145,7 +2205,6 @@ function createGoogleCalendar() {
         .catch((error) => console.error('Error creating calendar:', error));
 }
 
-// Add Events to Google Calendar
 function addEventsToCalendar(calendarId) {
     if (!selectedPlants || selectedPlants.length === 0) {
         alert('No plants selected. Please select plants to add events.');
@@ -2195,7 +2254,7 @@ function addEventsToCalendar(calendarId) {
     });
 }
 
-// Attach Generate Calendar Event
+// Attach Event Listeners
 generateCalendarButton.addEventListener('click', createGoogleCalendar);
 
 // Initialize App
@@ -2205,5 +2264,6 @@ function initializeApp() {
     handleRedirectResponse();
 }
 
-// Run the App
+// Run App
 initializeApp();
+
