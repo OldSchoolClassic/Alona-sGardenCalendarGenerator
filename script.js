@@ -2242,8 +2242,8 @@ function createGoogleCalendar(accessToken) {
 
 // Add events to the created Google Calendar
 function addEventsToCalendar(accessToken, calendarId) {
-    // Loop through selected plants and create events
     selectedPlants.forEach((plant) => {
+        // Parse plant's optimal planting date
         const [startMonth, startDay] = plant.optimalPlantingDate.split(' - ')[0].split(' ');
         const [endMonth, endDay] = plant.optimalPlantingDate.split(' - ')[1].split(' ');
 
@@ -2251,7 +2251,7 @@ function addEventsToCalendar(accessToken, calendarId) {
         const endDate = new Date(`2025 ${endMonth} ${endDay}`).toISOString().split('T')[0];
 
         const event = {
-            summary: plant.name,
+            summary: `${plant.name} Planting`,
             description: `
                 Description: ${plant.description}
                 Planting Zone: ${plant.plantingZone}
@@ -2274,6 +2274,8 @@ function addEventsToCalendar(accessToken, calendarId) {
             },
         };
 
+        console.log('Creating event:', event); // Log the event details for debugging
+
         fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
             method: 'POST',
             headers: {
@@ -2290,6 +2292,7 @@ function addEventsToCalendar(accessToken, calendarId) {
             })
             .then((eventData) => {
                 console.log(`Event Created for ${plant.name}:`, eventData);
+                alert(`Event created for ${plant.name}!`);
             })
             .catch((error) => {
                 console.error(`Error creating event for ${plant.name}:`, error);
@@ -2297,7 +2300,12 @@ function addEventsToCalendar(accessToken, calendarId) {
     });
 }
 
+// Debugging Notes
+// - Ensure `selectedPlants` contains all the correct plants and their details before calling `addEventsToCalendar`.
+// - Check the format of the dates being generated from `plant.optimalPlantingDate`. They should be valid ISO 8601 dates.
+// - Use `console.log` extensively to verify the event data being sent to the API.
 // Initialize the app
+
 function initializeApp() {
     populatePlantSelector();
     generateCalendar(currentMonth, currentYear);
