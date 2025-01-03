@@ -2174,11 +2174,20 @@ function matchesPlantingDate(plant, date) {
 
 // Google Calendar Integration
 function createGoogleCalendar() {
+    const CLIENT_ID = 'your-client-id.apps.googleusercontent.com';
+    const REDIRECT_URI = 'your-redirect-uri'; // Replace with your redirect URI
+    const SCOPES = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events';
+
     if (!accessToken) {
-        alert('Authorization required. Please log in to Google.');
+        // Redirect user to Google's OAuth 2.0 server
+        const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
+            REDIRECT_URI
+        )}&response_type=token&scope=${encodeURIComponent(SCOPES)}&prompt=consent`;
+        window.location.href = authUrl;
         return;
     }
 
+    // If accessToken is available, proceed to create a calendar
     fetch('https://www.googleapis.com/calendar/v3/calendars', {
         method: 'POST',
         headers: {
@@ -2197,6 +2206,23 @@ function createGoogleCalendar() {
         })
         .catch(console.error);
 }
+
+// Handle OAuth Redirect Response
+function handleOAuthRedirect() {
+    const hash = window.location.hash;
+    if (hash) {
+        const params = new URLSearchParams(hash.substring(1));
+        accessToken = params.get('access_token');
+        if (accessToken) {
+            console.log('Access Token Retrieved:', accessToken);
+        } else {
+            console.error('Access token not found.');
+        }
+    }
+}
+
+// Call this function on page load to handle OAuth token retrieval
+handleOAuthRedirect();
 
 // Attach Event Listeners
 generateCalendarButton.addEventListener('click', createGoogleCalendar);
