@@ -2242,6 +2242,11 @@ function createGoogleCalendar(accessToken) {
 
 // Add events to the created Google Calendar
 function addEventsToCalendar(accessToken, calendarId) {
+    if (!selectedPlants || selectedPlants.length === 0) {
+        console.error('No plants selected. Cannot add events to calendar.');
+        return;
+    }
+
     selectedPlants.forEach((plant) => {
         // Parse plant's optimal planting date
         const [startMonth, startDay] = plant.optimalPlantingDate.split(' - ')[0].split(' ');
@@ -2274,7 +2279,7 @@ function addEventsToCalendar(accessToken, calendarId) {
             },
         };
 
-        console.log('Creating event:', event); // Log the event details for debugging
+        console.log('Creating event for calendar:', event);
 
         fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
             method: 'POST',
@@ -2301,11 +2306,11 @@ function addEventsToCalendar(accessToken, calendarId) {
 }
 
 // Debugging Notes
-// - Ensure `selectedPlants` contains all the correct plants and their details before calling `addEventsToCalendar`.
-// - Check the format of the dates being generated from `plant.optimalPlantingDate`. They should be valid ISO 8601 dates.
-// - Use `console.log` extensively to verify the event data being sent to the API.
-// Initialize the app
+// - Log the `selectedPlants` array to verify it contains the correct data.
+// - Ensure `plant.optimalPlantingDate` is properly formatted and matches expected structure (e.g., "March 15 - March 30").
+// - Confirm the calendar ID is valid before making API requests.
 
+// Initialize the app
 function initializeApp() {
     populatePlantSelector();
     generateCalendar(currentMonth, currentYear);
@@ -2317,3 +2322,4 @@ generateCalendarButton.addEventListener('click', handleAuthRedirect);
 
 // Run the app
 initializeApp();
+
