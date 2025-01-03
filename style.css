@@ -1,0 +1,369 @@
+:root {
+    --primary-color: #4caf50;
+    --secondary-color: #81c784;
+    --background-color: #f5f5f5;
+    --text-color: #333;
+    --button-hover: #388e3c;
+    --bubble-bg: rgba(76, 175, 80, 0.1);
+    --border-color: #ccc;
+    --modal-bg: rgba(0, 0, 0, 0.5);
+    --box-shadow: 0 4px 10px rgba(0, 0, 0, 0.2);
+}
+
+body {
+    font-family: Arial, sans-serif;
+    background-color: var(--background-color);
+    color: var(--text-color);
+    margin: 0;
+    padding: 0;
+}
+
+header {
+    text-align: center;
+    background: var(--primary-color);
+    color: white;
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+}
+
+header h1 {
+    margin: 0;
+    font-size: 2.5rem;
+}
+
+main {
+    max-width: 1200px;
+    margin: 20px auto;
+    padding: 20px;
+}
+
+section {
+    margin-bottom: 30px;
+}
+
+/* Carousel Styles */
+#carousel-container {
+    position: relative;
+    overflow: hidden;
+    padding: 20px 0;
+}
+
+#plants-carousel {
+    display: flex;
+    gap: 15px;
+    padding: 10px;
+    overflow-x: auto;
+    scroll-behavior: smooth;
+    background: var(--background-color);
+    border: 1px solid var(--border-color);
+    border-radius: 10px;
+    box-shadow: var(--box-shadow);
+}
+
+.plant-card {
+    background: var(--bubble-bg);
+    padding: 20px;
+    border-radius: 10px;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    cursor: pointer;
+    transition: background 0.3s ease, transform 0.2s ease;
+    min-width: 200px;
+    flex: 0 0 auto;
+}
+
+.plant-card h4 {
+    margin: 10px 0;
+    font-size: 1.2rem;
+    color: var(--text-color);
+}
+
+.plant-card:hover {
+    background: var(--primary-color);
+    color: white;
+    transform: scale(1.05);
+}
+
+.plant-card.selected {
+    background: var(--secondary-color);
+    color: white;
+    border: 2px solid var(--primary-color);
+}
+
+/* Carousel Arrows */
+.carousel-arrow {
+    position: absolute;
+    top: 50%;
+    transform: translateY(-50%);
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 50%;
+    cursor: pointer;
+    padding: 15px;
+    z-index: 20;
+    box-shadow: var(--box-shadow);
+    transition: background 0.3s ease-in-out;
+}
+
+.carousel-arrow.left {
+    left: 10px;
+}
+
+.carousel-arrow.right {
+    right: 10px;
+}
+
+.carousel-arrow:hover {
+    background: var(--button-hover);
+}
+
+/* Buttons */
+button {
+    background: var(--primary-color);
+    color: white;
+    border: none;
+    border-radius: 5px;
+    padding: 10px 20px;
+    cursor: pointer;
+    font-size: 1rem;
+    transition: background 0.3s ease-in-out;
+}
+
+button:hover {
+    background: var(--button-hover);
+}
+
+/* Calendar Styles */
+#calendar-preview {
+    margin-top: 30px;
+    background: white;
+    border-radius: 10px;
+    padding: 20px;
+    box-shadow: var(--box-shadow);
+}
+
+#calendar-controls {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    margin-bottom: 20px;
+}
+
+#calendar-controls span {
+    font-size: 1.5rem;
+    font-weight: bold;
+}
+
+#calendar-table {
+    width: 100%;
+    border-collapse: collapse;
+}
+
+#calendar-table th, 
+#calendar-table td {
+    width: 14.2%;
+    border: 1px solid var(--border-color);
+    text-align: center;
+    vertical-align: top;
+    padding: 10px;
+}
+
+#calendar-table th {
+    background: var(--primary-color);
+    color: white;
+    font-weight: bold;
+    font-size: 1rem;
+}
+
+#calendar-table td:hover {
+    background: #f0f0f0;
+}
+
+.calendar-event {
+    background: var(--primary-color);
+    color: white;
+    padding: 5px;
+    margin: 5px 0;
+    border-radius: 5px;
+    font-size: 0.9rem;
+    cursor: pointer;
+    position: relative;
+    transition: background 0.3s ease-in-out;
+}
+
+.calendar-event:hover {
+    background: var(--button-hover);
+}
+
+/* Tooltip Styles */
+.calendar-event {
+    position: relative;
+    cursor: pointer;
+}
+
+.calendar-event:hover .tooltip-content {
+    visibility: visible;
+    opacity: 1;
+    transform: translateY(0);
+}
+
+.tooltip-content {
+    visibility: hidden;
+    opacity: 0;
+    position: absolute;
+    top: -220%; /* Adjust to position the tooltip above the event */
+    left: 50%;
+    transform: translateX(-50%) translateY(10px);
+    z-index: 100;
+    background: white;
+    color: var(--text-color);
+    padding: 15px; /* Adjusted padding for cleaner design */
+    border: 1px solid var(--border-color);
+    border-radius: 8px;
+    box-shadow: var(--box-shadow);
+    font-size: 0.9rem;
+    min-width: 300px; /* Ensures tooltip is wide enough */
+    max-width: 600px; /* Limits the tooltip's maximum width */
+    max-height: 400px; /* Prevents excessive height */
+    overflow-y: auto; /* Adds scroll if content overflows vertically */
+    transition: all 0.3s ease;
+    display: flex;
+    flex-direction: column;
+    gap: 10px; /* Adds spacing between items */
+}
+
+.tooltip-content p {
+    margin: 0;
+    line-height: 1.6;
+}
+
+.tooltip-content strong {
+    color: var(--primary-color);
+    font-weight: bold;
+}
+
+/* Modal Styles */
+.modal {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background: var(--modal-bg);
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 1000;
+    opacity: 0;
+    visibility: hidden;
+    transition: opacity 0.3s ease, visibility 0.3s ease;
+}
+
+.modal-content {
+    background: white;
+    padding: 20px;
+    border-radius: 10px;
+    width: 80%;
+    max-width: 600px;
+    box-shadow: var(--box-shadow);
+    position: relative;
+}
+
+.modal-content h2 {
+    margin-top: 0;
+    font-size: 1.8rem;
+}
+
+.modal-content ul {
+    list-style: none;
+    padding: 0;
+    margin: 10px 0;
+}
+
+.modal-content ul li {
+    margin: 5px 0;
+    font-size: 1rem;
+}
+
+.close-modal {
+    position: absolute;
+    top: 10px;
+    right: 10px;
+    font-size: 1.5rem;
+    cursor: pointer;
+    color: var(--text-color);
+}
+
+.modal.hidden {
+    opacity: 0;
+    visibility: hidden;
+}
+
+.modal.visible {
+    opacity: 1;
+    visibility: visible;
+}
+
+/* Responsive Adjustments */
+@media (max-width: 768px) {
+    #plants-carousel {
+        padding: 5px;
+    }
+
+    .plant-card {
+        min-width: 150px;
+    }
+
+    .carousel-arrow {
+        padding: 10px;
+    }
+
+    #calendar-controls span {
+        font-size: 1.2rem;
+    }
+
+    .modal-content {
+        width: 90%;
+    }
+}
+
+footer {
+    background: var(--primary-color);
+    color: white;
+    text-align: center;
+    padding: 15px 20px;
+    box-shadow: var(--box-shadow);
+    font-size: 1rem;
+    position: fixed; /* Keeps the footer at the bottom */
+    bottom: 0;
+    left: 0;
+    width: 100%;
+    z-index: 10;
+}
+
+footer p {
+    margin: 0;
+    font-weight: 500;
+    font-size: 1rem;
+    letter-spacing: 0.5px;
+}
+
+footer a {
+    color: var(--secondary-color);
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s ease;
+}
+
+footer a:hover {
+    color: var(--button-hover);
+}
+
+/* Responsive Footer Adjustments */
+@media (max-width: 768px) {
+    footer {
+        font-size: 0.9rem;
+        padding: 10px 15px;
+    }
+}
