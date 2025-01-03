@@ -1974,8 +1974,6 @@ const calendarPreview = document.getElementById('calendar-preview');
 const generateCalendarButton = document.getElementById('generate-calendar');
 const prevMonthButton = document.getElementById('prev-month');
 const nextMonthButton = document.getElementById('next-month');
-const carouselPrevButton = document.getElementById('carousel-prev');
-const carouselNextButton = document.getElementById('carousel-next');
 
 // Calendar Setup
 const months = [
@@ -2008,9 +2006,26 @@ function populatePlantSelector() {
             generateCalendar(currentMonth, currentYear);
         });
 
+        // Open Modal on Double Click
+        plantCard.addEventListener('dblclick', () => {
+            openModal(plant);
+        });
+
         plantsContainer.appendChild(plantCard);
     });
 }
+
+// Open Modal
+function openModal(plant) {
+    document.getElementById('modal-plant-name').textContent = plant.name;
+    document.getElementById('modal-plant-description').textContent = plant.description;
+    modal.classList.add('visible');
+}
+
+// Close Modal
+modalCloseButton.addEventListener('click', () => {
+    modal.classList.remove('visible');
+});
 
 // Generate Calendar
 function generateCalendar(month, year) {
@@ -2069,19 +2084,6 @@ function populateCalendarEvents() {
                 tooltip.innerHTML = `
                     <p><strong>Name:</strong> ${plant.name}</p>
                     <p><strong>Description:</strong> ${plant.description}</p>
-                    <p><strong>Planting Zone:</strong> ${plant.plantingZone}</p>
-                    <p><strong>Optimal Planting Date:</strong> ${plant.optimalPlantingDate}</p>
-                    <p><strong>Growth Season:</strong> ${plant.growthSeason}</p>
-                    <p><strong>Sunlight:</strong> ${plant.sunlight}</p>
-                    <p><strong>Watering:</strong> ${plant.watering}</p>
-                    <p><strong>Soil Type:</strong> ${plant.soilType}</p>
-                    <p><strong>Fertilization:</strong> ${plant.fertilization}</p>
-                    <p><strong>Pruning:</strong> ${plant.pruning}</p>
-                    <p><strong>Pests:</strong> ${plant.pests}</p>
-                    <p><strong>Harvesting:</strong> ${plant.harvesting}</p>
-                    <p><strong>Storage:</strong> ${plant.storage}</p>
-                    <p><strong>Companion Plants:</strong> ${plant.companionPlants}</p>
-                    <p><strong>Varieties:</strong> ${plant.varieties}</p>
                 `;
                 event.appendChild(tooltip);
 
@@ -2115,15 +2117,65 @@ function matchesPlantingDate(plant, date) {
 
 // Google Calendar Integration
 function createGoogleCalendar() {
-    const CLIENT_ID = 'your-client-id.apps.googleusercontent.com';
-    const REDIRECT_URI = 'https://your-redirect-uri.com';
-    const SCOPES = 'https://www.googleapis.com/auth/calendar';
+    if (!accessToken) {
+        alert('Authorization required. Please log in to Google.');
+        return;
+    }
 
-    const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
-        REDIRECT_URI
-    )}&response_type=token&scope=${encodeURIComponent(SCOPES)}`;
+    fetch('https://www.googleapis.com/calendar/v3/calendars', {
+        method: 'POST',
+        headers: {
+            Authorization: `Bearer ${accessToken}`,
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({
+            summary: 'Garden Calendar',
+            timeZone: 'UTC',
+        }),
+    })
+        .then((response) => response.json())
+        .then((data) => {
+            alert(`Google Calendar created successfully! ID: ${data.id}`);
+            addEventsToCalendar(data.id);
+        })
+        .catch(console.error);
+}
 
-    window.open(authUrl, '_blank');
+// Add Events to Google Calendar
+function addEventsToCalendar(calendarId) {
+    if (!selectedPlants || selectedPlants.length === 0) {
+        alert('No plants selected. Please select plants to add events.');
+        return;
+    }
+
+    selectedPlants.forEach((plant) => {
+        const [startMonth, startDay] = plant.optimalPlantingDate.split(' - ')[0].split(' ');
+        const [endMonth, endDay] = plant.optimalPlantingDate.split(' - ')[1].split(' ');
+
+        const startDate = new Date(`2025 ${startMonth} ${startDay}`).toISOString().split('T')[0];
+        const endDate = new Date(`2025 ${endMonth} ${endDay}`).toISOString().split('T')[0];
+
+        const event = {
+            summary: `${plant.name} Planting`,
+            description: `Description: ${plant.description}`,
+            start: { date: startDate },
+            end: { date: endDate },
+        };
+
+        fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
+            method: 'POST',
+            headers: {
+                Authorization: `Bearer ${accessToken}`,
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(event),
+        })
+            .then((response) => response.json())
+            .then((eventData) => {
+                console.log(`Event Created for ${plant.name}:`, eventData);
+            })
+            .catch((error) => console.error(`Error creating event for ${plant.name}:`, error));
+    });
 }
 
 // Attach Event Listeners
@@ -2137,12 +2189,6 @@ nextMonthButton.addEventListener('click', () => {
     currentMonth = (currentMonth + 1) % 12;
     if (currentMonth === 0) currentYear++;
     generateCalendar(currentMonth, currentYear);
-});
-carouselPrevButton.addEventListener('click', () => {
-    plantsContainer.scrollBy({ left: -300, behavior: 'smooth' });
-});
-carouselNextButton.addEventListener('click', () => {
-    plantsContainer.scrollBy({ left: 300, behavior: 'smooth' });
 });
 modalCloseButton.addEventListener('click', () => {
     modal.classList.remove('visible');
