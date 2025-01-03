@@ -2008,26 +2008,9 @@ function populatePlantSelector() {
             generateCalendar(currentMonth, currentYear);
         });
 
-        // Open Modal on Double Click
-        plantCard.addEventListener('dblclick', () => {
-            openModal(plant);
-        });
-
         plantsContainer.appendChild(plantCard);
     });
 }
-
-// Open Modal
-function openModal(plant) {
-    document.getElementById('modal-plant-name').textContent = plant.name;
-    document.getElementById('modal-plant-description').textContent = plant.description;
-    modal.classList.add('visible');
-}
-
-// Close Modal
-modalCloseButton.addEventListener('click', () => {
-    modal.classList.remove('visible');
-});
 
 // Generate Calendar
 function generateCalendar(month, year) {
@@ -2086,6 +2069,19 @@ function populateCalendarEvents() {
                 tooltip.innerHTML = `
                     <p><strong>Name:</strong> ${plant.name}</p>
                     <p><strong>Description:</strong> ${plant.description}</p>
+                    <p><strong>Planting Zone:</strong> ${plant.plantingZone}</p>
+                    <p><strong>Optimal Planting Date:</strong> ${plant.optimalPlantingDate}</p>
+                    <p><strong>Growth Season:</strong> ${plant.growthSeason}</p>
+                    <p><strong>Sunlight:</strong> ${plant.sunlight}</p>
+                    <p><strong>Watering:</strong> ${plant.watering}</p>
+                    <p><strong>Soil Type:</strong> ${plant.soilType}</p>
+                    <p><strong>Fertilization:</strong> ${plant.fertilization}</p>
+                    <p><strong>Pruning:</strong> ${plant.pruning}</p>
+                    <p><strong>Pests:</strong> ${plant.pests}</p>
+                    <p><strong>Harvesting:</strong> ${plant.harvesting}</p>
+                    <p><strong>Storage:</strong> ${plant.storage}</p>
+                    <p><strong>Companion Plants:</strong> ${plant.companionPlants}</p>
+                    <p><strong>Varieties:</strong> ${plant.varieties}</p>
                 `;
                 event.appendChild(tooltip);
 
@@ -2128,43 +2124,6 @@ function createGoogleCalendar() {
     )}&response_type=token&scope=${encodeURIComponent(SCOPES)}`;
 
     window.open(authUrl, '_blank');
-}
-
-// Add Events to Google Calendar
-function addEventsToCalendar(calendarId) {
-    if (!selectedPlants || selectedPlants.length === 0) {
-        alert('No plants selected. Please select plants to add events.');
-        return;
-    }
-
-    selectedPlants.forEach((plant) => {
-        const [startMonth, startDay] = plant.optimalPlantingDate.split(' - ')[0].split(' ');
-        const [endMonth, endDay] = plant.optimalPlantingDate.split(' - ')[1].split(' ');
-
-        const startDate = new Date(`2025 ${startMonth} ${startDay}`).toISOString().split('T')[0];
-        const endDate = new Date(`2025 ${endMonth} ${endDay}`).toISOString().split('T')[0];
-
-        const event = {
-            summary: `${plant.name} Planting`,
-            description: `Description: ${plant.description}`,
-            start: { date: startDate },
-            end: { date: endDate },
-        };
-
-        fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
-            method: 'POST',
-            headers: {
-                Authorization: `Bearer ${accessToken}`,
-                'Content-Type': 'application/json',
-            },
-            body: JSON.stringify(event),
-        })
-            .then((response) => response.json())
-            .then((eventData) => {
-                console.log(`Event Created for ${plant.name}:`, eventData);
-            })
-            .catch((error) => console.error(`Error creating event for ${plant.name}:`, error));
-    });
 }
 
 // Attach Event Listeners
