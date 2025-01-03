@@ -2179,15 +2179,13 @@ function createGoogleCalendar() {
     const SCOPES = 'https://www.googleapis.com/auth/calendar https://www.googleapis.com/auth/calendar.events';
 
     if (!accessToken) {
-        // Redirect user to Google's OAuth 2.0 server
         const authUrl = `https://accounts.google.com/o/oauth2/auth?client_id=${CLIENT_ID}&redirect_uri=${encodeURIComponent(
             REDIRECT_URI
         )}&response_type=token&scope=${encodeURIComponent(SCOPES)}&prompt=consent`;
-        window.location.href = authUrl;
+        window.location.href = authUrl; // Redirect for authentication
         return;
     }
 
-    // Create the calendar
     fetch('https://www.googleapis.com/calendar/v3/calendars', {
         method: 'POST',
         headers: {
@@ -2205,7 +2203,10 @@ function createGoogleCalendar() {
             alert(`Google Calendar created successfully! ID: ${calendarId}`);
             addEventsToCalendar(calendarId); // Add events to the calendar
         })
-        .catch(console.error);
+        .catch((error) => {
+            console.error('Error creating calendar:', error);
+            alert('Failed to create Google Calendar.');
+        });
 }
 
 // Add Events to Calendar
@@ -2219,11 +2220,9 @@ function addEventsToCalendar(calendarId) {
         const startDate = new Date(`2025 ${startMonth} ${startDay}`);
         const endDate = new Date(`2025 ${endMonth} ${endDay}`);
 
-        // Loop through all dates within the planting range
         for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
             const eventDate = new Date(date).toISOString().split('T')[0]; // Format as YYYY-MM-DD
 
-            // Prepare event details
             const event = {
                 summary: `${plant.name} Planting`,
                 description: `
@@ -2250,7 +2249,6 @@ function addEventsToCalendar(calendarId) {
                 },
             };
 
-            // Create each event in the calendar
             const promise = fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
                 method: 'POST',
                 headers: {
@@ -2258,17 +2256,152 @@ function addEventsToCalendar(calendarId) {
                     'Content-Type': 'application/json',
                 },
                 body: JSON.stringify(event),
-            }).then((response) => response.json());
+            })
+                .then((response) => {
+                    if (!response.ok) throw new Error(`Failed to create event: ${response.statusText}`);
+                    return response.json();
+                })
+                .then((data) => console.log(`Event created: ${data.id}`))
+                .catch(console.error);
 
             promises.push(promise);
         }
     });
 
-    // Wait for all events to be added
     Promise.all(promises)
         .then(() => {
             alert('All events have been added to the calendar!');
-            window.open(`https://calendar.google.com/calendar/u/0/r?cid=${calendarId}`, '_blank'); // Redirect to Google Calendar in a new tab
+            window.open(`https://calendar.google.com/calendar/u/0/r?cid=${calendarId}`, '_blank'); // Open Google Calendar
+        })
+        .catch(console.error);
+}
+function addEventsToCalendar(calendarId) {
+    const promises = [];
+
+    selectedPlants.forEach((plant) => {
+        const [startMonth, startDay] = plant.optimalPlantingDate.split(' - ')[0].split(' ');
+        const [endMonth, endDay] = plant.optimalPlantingDate.split(' - ')[1].split(' ');
+
+        const startDate = new Date(`2025 ${startMonth} ${startDay}`);
+        const endDate = new Date(`2025 ${endMonth} ${endDay}`);
+
+        for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+            const eventDate = new Date(date).toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+            const event = {
+                summary: `${plant.name} Planting`,
+                description: `
+                    Name: ${plant.name}
+                    Description: ${plant.description}
+                    Planting Zone: ${plant.plantingZone}
+                    Growth Season: ${plant.growthSeason}
+                    Sunlight: ${plant.sunlight}
+                    Watering: ${plant.watering}
+                    Soil Type: ${plant.soilType}
+                    Fertilization: ${plant.fertilization}
+                    Pruning: ${plant.pruning}
+                    Pests: ${plant.pests}
+                    Harvesting: ${plant.harvesting}
+                    Storage: ${plant.storage}
+                    Companion Plants: ${plant.companionPlants}
+                    Varieties: ${plant.varieties}
+                `,
+                start: {
+                    date: eventDate,
+                },
+                end: {
+                    date: eventDate,
+                },
+            };
+
+            const promise = fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(event),
+            })
+                .then((response) => {
+                    if (!response.ok) throw new Error(`Failed to create event: ${response.statusText}`);
+                    return response.json();
+                })
+                .then((data) => console.log(`Event created: ${data.id}`))
+                .catch(console.error);
+
+            promises.push(promise);
+        }
+    });
+
+    Promise.all(promises)
+        .then(() => {
+            alert('All events have been added to the calendar!');
+            window.open(`https://calendar.google.com/calendar/u/0/r?cid=${calendarId}`, '_blank'); // Open Google Calendar
+        })
+        .catch(console.error);
+}
+function addEventsToCalendar(calendarId) {
+    const promises = [];
+
+    selectedPlants.forEach((plant) => {
+        const [startMonth, startDay] = plant.optimalPlantingDate.split(' - ')[0].split(' ');
+        const [endMonth, endDay] = plant.optimalPlantingDate.split(' - ')[1].split(' ');
+
+        const startDate = new Date(`2025 ${startMonth} ${startDay}`);
+        const endDate = new Date(`2025 ${endMonth} ${endDay}`);
+
+        for (let date = new Date(startDate); date <= endDate; date.setDate(date.getDate() + 1)) {
+            const eventDate = new Date(date).toISOString().split('T')[0]; // Format as YYYY-MM-DD
+
+            const event = {
+                summary: `${plant.name} Planting`,
+                description: `
+                    Name: ${plant.name}
+                    Description: ${plant.description}
+                    Planting Zone: ${plant.plantingZone}
+                    Growth Season: ${plant.growthSeason}
+                    Sunlight: ${plant.sunlight}
+                    Watering: ${plant.watering}
+                    Soil Type: ${plant.soilType}
+                    Fertilization: ${plant.fertilization}
+                    Pruning: ${plant.pruning}
+                    Pests: ${plant.pests}
+                    Harvesting: ${plant.harvesting}
+                    Storage: ${plant.storage}
+                    Companion Plants: ${plant.companionPlants}
+                    Varieties: ${plant.varieties}
+                `,
+                start: {
+                    date: eventDate,
+                },
+                end: {
+                    date: eventDate,
+                },
+            };
+
+            const promise = fetch(`https://www.googleapis.com/calendar/v3/calendars/${calendarId}/events`, {
+                method: 'POST',
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify(event),
+            })
+                .then((response) => {
+                    if (!response.ok) throw new Error(`Failed to create event: ${response.statusText}`);
+                    return response.json();
+                })
+                .then((data) => console.log(`Event created: ${data.id}`))
+                .catch(console.error);
+
+            promises.push(promise);
+        }
+    });
+
+    Promise.all(promises)
+        .then(() => {
+            alert('All events have been added to the calendar!');
+            window.open(`https://calendar.google.com/calendar/u/0/r?cid=${calendarId}`, '_blank'); // Open Google Calendar
         })
         .catch(console.error);
 }
@@ -2283,7 +2416,8 @@ function handleOAuthRedirect() {
             console.log('Access Token Retrieved:', accessToken);
             alert('Google Authorization Successful!');
         } else {
-            console.error('Access token not found.');
+            alert('Authorization failed. Access token not found.');
+            console.error('Access token not found in redirect response.');
         }
     }
 }
